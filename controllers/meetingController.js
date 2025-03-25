@@ -1,7 +1,8 @@
 const Meeting = require("../models/Meeting.js");
 const Teacher = require("../models/Teacher");
 const Student = require("../models/Student");
-import { v4 as uuidv4 } from "uuid";
+const { v4: uuidv4 } = require("uuid");
+
 const io =
   // ✅ 1. Create a Meeting (Teacher)
   (exports.createMeeting = async (req, res, io) => {
