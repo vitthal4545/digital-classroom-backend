@@ -26,7 +26,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "https://digital-classroom-beryl.vercel.app",
+      "https://digital-classroom-gamma.vercel.app",
       "http://192.168.1.6:5173",
       "http://localhost:5173",
     ],
@@ -40,7 +40,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://digital-classroom-beryl.vercel.app",
+      "https://digital-classroom-gamma.vercel.app",
       "http://192.168.1.6:5173",
       "http://localhost:5173",
     ],

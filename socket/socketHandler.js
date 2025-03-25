@@ -49,7 +49,7 @@ module.exports = (io) => {
     socket.on("leave-meeting", ({ meetingId, peerId }) => {
       if (users[meetingId]) {
         users[meetingId] = users[meetingId].filter((id) => id !== peerId);
-        if (users[meetingId].length === 0) delete users[meetingId]; // Clean up empty meetings
+        if (users[meetingId].length === 0) delete users[meetingId];
       }
       socket.to(meetingId).emit("user-disconnected", peerId);
       console.log(`User ${peerId} left meeting ${meetingId}`);
