@@ -1,56 +1,56 @@
 const Meeting = require("../models/Meeting.js");
 const Teacher = require("../models/Teacher");
 const Student = require("../models/Student");
-const { v4: uuidv4 } = require("uuid");
+import { v4 as uuidv4 } from "uuid";
+const io =
+  // ✅ 1. Create a Meeting (Teacher)
+  (exports.createMeeting = async (req, res, io) => {
+    try {
+      console.log("request body of createMeeting:-", req.body);
+      const { title, teacherId } = req.body;
 
-// ✅ 1. Create a Meeting (Teacher)
-exports.createMeeting = async (req, res, io) => {
-  try {
-    console.log("request body of createMeeting:-", req.body);
-    const { title, teacherId } = req.body;
+      if (!title || !teacherId) {
+        return res
+          .status(400)
+          .json({ message: "Title and teacherId are required" });
+      }
 
-    if (!title || !teacherId) {
-      return res
-        .status(400)
-        .json({ message: "Title and teacherId are required" });
+      const teacher = await Teacher.findById(teacherId);
+      if (!teacher) {
+        return res.status(404).json({ message: "Teacher not found" });
+      }
+
+      const meetingId = uuidv4(); // Generate unique meeting ID
+      const meetingCode = Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
+
+      const meeting = new Meeting({
+        meetingId,
+        meetingCode,
+        title,
+        createdBy: teacherId,
+        participants: [],
+      });
+
+      await meeting.save();
+
+      // 🔥 Emit event so frontend knows the meeting is created
+      io.emit("meeting-created", { meetingId, teacherId });
+
+      res.status(201).json({
+        message: "Meeting created successfully",
+        meetingId,
+      });
+    } catch (error) {
+      console.error("🔥 Error in createMeeting:", error); // Log full error
+      res.status(500).json({
+        message: "Error creating meeting",
+        error: error.message, // Send actual error message
+      });
     }
-
-    const teacher = await Teacher.findById(teacherId);
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found" });
-    }
-
-    const meetingId = uuidv4(); // Generate unique meeting ID
-    const meetingCode = Math.random()
-      .toString(36)
-      .substring(2, 8)
-      .toUpperCase();
-
-    const meeting = new Meeting({
-      meetingId,
-      meetingCode,
-      title,
-      createdBy: teacherId,
-      participants: [],
-    });
-
-    await meeting.save();
-
-    // 🔥 Emit event so frontend knows the meeting is created
-    io.emit("meeting-created", { meetingId, teacherId });
-
-    res.status(201).json({
-      message: "Meeting created successfully",
-      meetingId,
-    });
-  } catch (error) {
-    console.error("🔥 Error in createMeeting:", error); // Log full error
-    res.status(500).json({
-      message: "Error creating meeting",
-      error: error.message, // Send actual error message
-    });
-  }
-};
+  });
 
 // ✅ 2. Join a Meeting (Student enters Meeting ID)
 exports.joinMeeting = async (req, res) => {
